@@ -1,3 +1,6 @@
+from cgitb import html
+from html.parser import HTMLParser
+from termios import B0
 from bs4 import BeautifulSoup
 import requests
 import unittest
@@ -6,21 +9,33 @@ import unittest
 # search for the url in the University of Michgian wikipedia page (in the third pargraph of the intro)
 # HINT: You will have to add https://en.wikipedia.org to the URL retrieved using BeautifulSoup
 def getLink(soup):
-    
-    pass
+    olympics = soup.find("a", title="List of American universities with Olympic medals")
+    url = 'https://en.wikipedia.org' + olympics.get('href')
+    return url
+   
 
 # Task 3: Get the details from the box titled "College/school founding". Get all the college/school names and the year they were
 # founded and organize the same into key-value pairs.
 def getAdmissionsInfo2019(soup):
+    table = soup.find('table', class_='toccolours')
+    table_rows = table.find_all('tr')[1:]
 
-    pass
-
+    school_dict = {}
+    for row in table_rows:
+        tds = row.find_all('td')
+        key = tds[0].text.strip()
+        value = tds[1].text.strip()
+        school_dict[key] = value
+    return school_dict
 
 
 def main():
     # Task 1: Create a BeautifulSoup object and name it soup. Refer to discussion slides or lecture slides to complete this
 
     #### YOUR CODE HERE####
+    url = 'https://en.wikipedia.org/wiki/University_of_Michigan'
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text, 'html.parser')
 
     #Call the functions getLink(soup) and getAdmissionsInfo2019(soup) on your soup object.
     getLink(soup)
@@ -34,21 +49,24 @@ class TestAllMethods(unittest.TestCase):
         self.assertEqual(getLink(self.soup), 'https://en.wikipedia.org/wiki/List_of_American_universities_with_Olympic_medals')
 
     def test_admissions_info(self):
-        self.assertEqual(getAdmissionsInfo2019(self.soup), {'Engineering': '1854', 
+        self.assertEqual(getAdmissionsInfo2019(self.soup), {'Literature, Science andthe Arts': '1841',
+                                                            'Medicine': '1850',
+                                                            'Engineering': '1854',
                                                             'Law': '1859',
-                                                            'Dentistry': '1875', 
-                                                            'Pharmacy': '1876', 
-                                                            'Music, Theatre &Dance': '1880', 
-                                                            'Nursing': '1893', 
-                                                            'Architecture &Urban Planning': '1906', 
-                                                            'Graduate Studies': '1912', 
-                                                            'Government': '1914', 'Education': 
-                                                            '1921', 'Business': '1924', 
-                                                            'Environment andSustainability': '1927', 
-                                                            'Public Health': '1941', 
-                                                            'Social Work': '1951', 
-                                                            'Information': '1969', 
-                                                            'Art & Design': '1974', 
+                                                            'Dentistry': '1875',
+                                                            'Pharmacy': '1876',
+                                                            'Music, Theatre &Dance': '1880',
+                                                            'Nursing': '1893',
+                                                            'Architecture &Urban Planning': '1906',
+                                                            'Graduate Studies': '1912',
+                                                            'Government': '1914',
+                                                            'Education': '1921',
+                                                            'Business': '1924',
+                                                            'Environment andSustainability': '1927',
+                                                            'Public Health': '1941',
+                                                            'Social Work': '1951',
+                                                            'Information': '1969',
+                                                            'Art & Design': '1974',
                                                             'Kinesiology': '1984'})
 
 if __name__ == "__main__":
